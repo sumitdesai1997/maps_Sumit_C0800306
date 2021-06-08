@@ -52,10 +52,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng userLatLng;
 
     Marker currentMarker;
+
     Polygon polygon;
     private static final int POLYGON_SIDES = 4;
-    ArrayList<Marker> markerList = new ArrayList();
-    ArrayList<String> cityList = new ArrayList<>();
+    Marker base = null;
+    // MarkerOptions baseMarker = new MarkerOptions().position(new LatLng(43.6532, -79.3832)).title("Your base").icon(BitmapDescriptorFactory.fromResource(R.drawable.messiresize));
+
+    ArrayList<Marker> markerList = new ArrayList<Marker>(){{
+        add(base);
+        add(base);
+        add(base);
+        add(base);
+
+    }};
+    ArrayList<String> cityList = new ArrayList<String>(){{
+        add("");
+        add("");
+        add("");
+        add("");
+    }};
     ArrayList<Integer> cityFillList = new ArrayList<Integer>() {{
         add(0);
         add(0);
@@ -106,16 +121,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
+                int indexMarker = 0;
+                for(Marker marker: markerList){
+                    if(marker != null){
+                        Location markerLocation = new Location("");
+                        markerLocation.setLatitude(marker.getPosition().latitude);
+                        markerLocation.setLongitude(marker.getPosition().longitude);
 
-                if(markerList.size() == POLYGON_SIDES){
-                    for(Marker marker:markerList){
-                        marker.remove();
+                        Location newMarkerLocation = new Location("");
+                        newMarkerLocation.setLatitude(latLng.latitude);
+                        newMarkerLocation.setLongitude(latLng.longitude);
+
+                        double distanceInKM =  markerLocation.distanceTo(newMarkerLocation)/1000;
+                        Log.d(TAG, "for index: "+ indexMarker + ", distanceInKM: " + distanceInKM);
+                        if(distanceInKM < 1.0){
+                            marker.remove();
+//                            Log.d(TAG, "cityFillList: "+ cityFillList);
+//                            Log.d(TAG, "cityList: "+ cityList);
+//                            Log.d(TAG, "markerList: "+ markerList);
+
+                            if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
+                                polygon.remove();
+                                polygon = null;
+                            }
+
+                            cityFillList.set(indexMarker, 0);
+                            cityList.set(indexMarker,"");
+                            markerList.set(indexMarker,null);
+
+                            Log.d(TAG, " after remove cityFillList: "+ cityFillList);
+                            Log.d(TAG, " after remove cityList: "+ cityList);
+                            Log.d(TAG, " after remove markerList: "+ markerList);
+
+                            return;
+                        }
+                        indexMarker += 1;
+                    }
+                }
+
+
+                if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
+                    for(int i=0; i<markerList.size();i++){
+                        if(markerList.get(i) != null) {
+                            markerList.get(i).remove();
+                            markerList.set(i,null);
+                        }
                     }
                     markerList.clear();
+                    markerList.add(base);
+                    markerList.add(base);
+                    markerList.add(base);
+                    markerList.add(base);
+
                     polygon.remove();
                     polygon = null;
 
                     cityList.clear();
+                    cityList.add("");
+                    cityList.add("");
+                    cityList.add("");
+                    cityList.add("");
+
                     cityFillList.clear();
                     cityFillList.add(0);
                     cityFillList.add(0);
@@ -152,8 +218,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 Log.d(TAG, "cityExist: "+ cityExist);
                 if(!cityExist && !newCity.equals("")){
-                    cityList.add(newCity);
+                    if(cityList.get(0).equals("")){
+                        cityList.set(0,newCity);
+                        cityFillList.set(0,1);
+                    } else if(cityList.get(1).equals("")){
+                        cityList.set(1,newCity);
+                        cityFillList.set(1,1);
+                    }
+                    else if(cityList.get(2).equals("")){
+                        cityList.set(2,newCity);
+                        cityFillList.set(2,1);
+                    }
+                    else if(cityList.get(3).equals("")){
+                        cityList.set(3,newCity);
+                        cityFillList.set(3,1);
+                    }
                 }
+
+                Log.d(TAG, "cityFillList: "+ cityFillList);
                 Log.d(TAG, "cityList: "+ cityList);
 
                 if (polygon != null) {
@@ -168,9 +250,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         .strokeWidth(5f)
                         .fillColor(0x5900AA00);
                 for (int i = 0; i < markerList.size(); i++) {
-                    polygonOptions.add(markerList.get(i).getPosition());
+                    if(markerList.get(i) != null) {
+                        polygonOptions.add(markerList.get(i).getPosition());
+                    }
                 }
-                if(markerList.size() == POLYGON_SIDES) {
+                if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0) {
                     polygon = mMap.addPolygon(polygonOptions);
                 }
             }
@@ -206,48 +290,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return false;
             }
         });
+
     }
 
     ArrayList<Double> distancesFromMidPointsOfPolygonEdges = new ArrayList<>();
     private void adjustPolygonWithRespectTo(LatLng point) {
         double minDistance = 0;
 
-        if (markerList.size() > 2) {
+        if (markerList.get(0) != null && markerList.get(1) != null && markerList.get(2) != null) {
             distancesFromMidPointsOfPolygonEdges.clear();
 
             for (int i = 0; i < markerList.size(); i++) {
-                // 1. Find the mid points of the edges of polygon
-                ArrayList<LatLng> list = new ArrayList<>();
+                if (markerList.get(i) != null && markerList.get(i+1) != null) {
+                    // 1. Find the mid points of the edges of polygon
+                    ArrayList<LatLng> list = new ArrayList<>();
 
-                if (i == (markerList.size() - 1)) {
-                    list.add(markerList.get(markerList.size() - 1).getPosition());
-                    list.add(markerList.get(0).getPosition());
-                } else {
-                    list.add((markerList.get(i).getPosition()));
-                    list.add((markerList.get(i + 1).getPosition()));
-                }
+                    if (i == (markerList.size() - 1)) {
+                        list.add(markerList.get(markerList.size() - 1).getPosition());
+                        list.add(markerList.get(0).getPosition());
+                    } else {
+                        list.add((markerList.get(i).getPosition()));
+                        list.add((markerList.get(i + 1).getPosition()));
+                    }
 
-                LatLng midPoint = computeCentroid(list);
+                    LatLng midPoint = computeCentroid(list);
 
-                // 2. Calculate the nearest coordinate by finding distance between mid point of each edge and the coordinate to be drawn
-                Location startPoint = new Location("");
-                startPoint.setLatitude(point.latitude);
-                startPoint.setLongitude(point.longitude);
+                    // 2. Calculate the nearest coordinate by finding distance between mid point of each edge and the coordinate to be drawn
+                    Location startPoint = new Location("");
+                    startPoint.setLatitude(point.latitude);
+                    startPoint.setLongitude(point.longitude);
 
-                Location endPoint = new Location("");
-                endPoint.setLatitude(midPoint.latitude);
-                endPoint.setLongitude(midPoint.longitude);
+                    Location endPoint = new Location("");
+                    endPoint.setLatitude(midPoint.latitude);
+                    endPoint.setLongitude(midPoint.longitude);
 
-                double distance = startPoint.distanceTo(endPoint);
+                    double distance = startPoint.distanceTo(endPoint);
 
-                distancesFromMidPointsOfPolygonEdges.add(distance);
+                    distancesFromMidPointsOfPolygonEdges.add(distance);
 
-                if (i == 0) {
-                    minDistance = distance;
-                } else {
-
-                    if (distance < minDistance) {
+                    if (i == 0) {
                         minDistance = distance;
+                    } else {
+
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                        }
                     }
                 }
             }
@@ -278,19 +365,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if(cityFillList.get(0) == 0){
             newMarker.title("A");
-            cityFillList.set(0,1);
+            //cityFillList.set(0,1);
         } else if(cityFillList.get(1) == 0){
             newMarker.title("B");
-            cityFillList.set(1,1);
+            //cityFillList.set(1,1);
         } else if(cityFillList.get(2) == 0){
             newMarker.title("C");
-            cityFillList.set(2,1);
+            //cityFillList.set(2,1);
         } else if(cityFillList.get(3) == 0){
             newMarker.title("D");
-            cityFillList.set(3,1);
+            //cityFillList.set(3,1);
         }
 
-        markerList.add(mMap.addMarker(newMarker));
+        if(markerList.get(0) == null){
+            markerList.set(0,mMap.addMarker(newMarker));
+            cityFillList.set(0,1);
+        } else if(markerList.get(1) == null){
+            markerList.set(1,mMap.addMarker(newMarker));
+            cityFillList.set(1,1);
+        } else if(markerList.get(2) == null){
+            markerList.set(2,mMap.addMarker(newMarker));
+            cityFillList.set(2,1);
+        } else if(markerList.get(3) == null){
+            markerList.set(3,mMap.addMarker(newMarker));
+            cityFillList.set(3,1);
+        }
+        Log.d(TAG, "add markerList: "+ markerList);
     }
 
     public static int minIndex(ArrayList<Double> list) {
