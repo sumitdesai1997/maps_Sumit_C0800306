@@ -144,7 +144,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 for(String city: cityList){
                     if(city.equalsIgnoreCase(newCity)){
                         cityExist = true;
-                        Toast.makeText(getApplicationContext(),"City "+ newCity+" already exist!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getBaseContext(),"City "+ newCity+" already exist!", Toast.LENGTH_SHORT).show();
                         Log.d(TAG, "City "+ newCity+" already exist!");
                         return;
                     }
@@ -173,6 +173,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(markerList.size() == POLYGON_SIDES) {
                     polygon = mMap.addPolygon(polygonOptions);
                 }
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull @NotNull Marker marker) {
+
+                String address = "Could not find the address";
+                Geocoder geocoder = new Geocoder(getBaseContext(), Locale.getDefault());
+                try{
+                    List<Address> addressList = geocoder.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1);
+                    if(addressList != null  && addressList.size() > 0){
+                        address = "\n";
+
+                        // street name
+                        if (addressList.get(0).getThoroughfare() != null)
+                            address += addressList.get(0).getThoroughfare() + ",";
+                        if (addressList.get(0).getLocality() != null)
+                            address += addressList.get(0).getLocality() + " ";
+                        if (addressList.get(0).getPostalCode() != null)
+                            address += addressList.get(0).getPostalCode() + " ";
+                        if (addressList.get(0).getAdminArea() != null)
+                            address += addressList.get(0).getAdminArea();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                Toast.makeText(getApplicationContext(),address, Toast.LENGTH_LONG).show();
+                Log.d(TAG, "onMarkerClick: "+ address);
+                return false;
             }
         });
     }
@@ -312,7 +343,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions marker = new MarkerOptions().position(userLatLng)
                 .title("You are here")
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.messiresize))
                 .snippet("Your location");
         currentMarker = mMap.addMarker(marker);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng,10));
