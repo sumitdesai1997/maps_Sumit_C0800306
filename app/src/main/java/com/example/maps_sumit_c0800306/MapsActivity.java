@@ -32,6 +32,8 @@ import com.example.maps_sumit_c0800306.databinding.ActivityMapsBinding;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.*;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -55,6 +57,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker currentMarker;
 
     Polygon polygon;
+    Polyline polyline1;
+    Polyline polyline2;
+    Polyline polyline3;
+    Polyline polyline4;
+
     private static final int POLYGON_SIDES = 4;
     Marker base = null;
     // MarkerOptions baseMarker = new MarkerOptions().position(new LatLng(43.6532, -79.3832)).title("Your base").icon(BitmapDescriptorFactory.fromResource(R.drawable.messiresize));
@@ -407,6 +414,68 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(getBaseContext(),"Total distance is: "+ String.format("%.2f", totalDistance) + "Km", Toast.LENGTH_LONG).show();
 
                 Log.d(TAG, "onPolygonClick: totalDistance: "+ String.format("%.2f", totalDistance) + "Km");
+            }
+        });
+        
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull @NotNull LatLng latLng) {
+                if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
+                    /*Log.d(TAG, "onMapClick: ");
+                    for(int i=0; i<markerList.size(); i++){
+                        LatLng point1;
+                        LatLng point2;
+                        if (i == (markerList.size() - 1)) {
+                            point1 = markerList.get(markerList.size() - 1).getPosition();
+                            point2 = markerList.get(0).getPosition();
+                        } else {
+                             point1 = markerList.get(i).getPosition();
+                             point2 = markerList.get(i + 1).getPosition();
+                        }
+
+                        PolylineOptions polyline = new PolylineOptions()
+                                .color(Color.BLACK)
+                                .width(10)
+                                .add(point1, point2);
+                        mMap.addPolyline(polyline);
+                        Log.d(TAG, "onMapClick: polyline added");
+                    }*/
+
+                    LatLng point0 = markerList.get(0).getPosition();
+                    LatLng point1 = markerList.get(1).getPosition();
+                    LatLng point2 = markerList.get(2).getPosition();
+                    LatLng point3 = markerList.get(3).getPosition();
+
+                    PolylineOptions polylineOptn = new PolylineOptions()
+                            .color(Color.BLACK)
+                            .width(10);
+                    polyline1 = mMap.addPolyline(polylineOptn.add(point0,point1));
+                    polyline2 = mMap.addPolyline(polylineOptn.add(point1,point2));
+                    polyline3 = mMap.addPolyline(polylineOptn.add(point2,point3));
+                    polyline4 = mMap.addPolyline(polylineOptn.add(point3,point0));
+
+                    polyline1.setClickable(true);
+                    polyline2.setClickable(true);
+                    polyline3.setClickable(true);
+                    polyline4.setClickable(true);
+                }
+            }
+        });
+
+        mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
+            @Override
+            public void onPolylineClick(@NonNull @NotNull Polyline polyline) {
+                List<LatLng> lineCoordinates = polyline.getPoints();
+
+                Location location1 = new Location("");
+                location1.setLatitude(lineCoordinates.get(0).latitude);
+                location1.setLongitude(lineCoordinates.get(0).longitude);
+
+                Location location2 = new Location("");
+                location2.setLatitude(lineCoordinates.get(1).latitude);
+                location2.setLongitude(lineCoordinates.get(1).longitude);
+
+                double distnace = location1.distanceTo(location2);
             }
         });
     }
