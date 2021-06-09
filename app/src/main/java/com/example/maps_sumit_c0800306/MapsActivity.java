@@ -2,6 +2,7 @@ package com.example.maps_sumit_c0800306;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
@@ -18,6 +19,10 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -86,6 +91,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         add(0);
     }};
 
+    TextView tv;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,6 +118,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        tv = findViewById(R.id.tv);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
@@ -148,6 +156,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
                                 polygon.remove();
                                 polygon = null;
+
+                                polyline1.remove();
+                                polyline2.remove();
+                                polyline3.remove();
+                                polyline4.remove();
+                                polyline1 = null;
+                                polyline2 = null;
+                                polyline3 = null;
+                                polyline4 = null;
                             }
 
                             cityFillList.set(indexMarker, 0);
@@ -179,6 +196,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                     polygon.remove();
                     polygon = null;
+
+                    polyline1.remove();
+                    polyline2.remove();
+                    polyline3.remove();
+                    polyline4.remove();
+                    polyline1 = null;
+                    polyline2 = null;
+                    polyline3 = null;
+                    polyline4 = null;
 
                     cityList.clear();
                     cityList.add("");
@@ -214,7 +240,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 for(String city: cityList){
                     if(city.equalsIgnoreCase(newCity)){
                         cityExist = true;
-                        Toast.makeText(getBaseContext(),"City "+ newCity+" already exist!", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getBaseContext(),"City "+ newCity+" already exist!", Toast.LENGTH_SHORT).show();
+                        tv.setText("City "+ newCity+" already exist!");
                         Log.d(TAG, "City "+ newCity+" already exist!");
                         return;
                     }
@@ -289,8 +316,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     e.printStackTrace();
                 }
 
-                Toast.makeText(getApplicationContext(),address, Toast.LENGTH_LONG).show();
-                Log.d(TAG, "onMarkerClick: "+ address);
+               // Toast.makeText(getApplicationContext(),address, Toast.LENGTH_LONG).show();
+                tv.setText(address);
+                //Log.d(TAG, "onMarkerClick: "+ address);
                 return false;
             }
         });
@@ -321,6 +349,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(polygon != null){
                     polygon.remove();
                     polygon = null;
+                }
+
+                if(polyline1 != null){
+                    polyline1.remove();
+                    polyline2.remove();
+                    polyline3.remove();
+                    polyline4.remove();
+                    polyline1 = null;
+                    polyline2 = null;
+                    polyline3 = null;
+                    polyline4 = null;
                 }
 
                 Log.d(TAG, " onMarkerDragStart cityFillList: "+ cityFillList);
@@ -411,8 +450,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 double totalDistance = AB + BC + CD +DE;
 
-                Toast.makeText(getBaseContext(),"Total distance is: "+ String.format("%.2f", totalDistance) + "Km", Toast.LENGTH_LONG).show();
-
+                //Toast.makeText(getBaseContext(),"Total distance is: "+ String.format("%.2f", totalDistance) + "Km", Toast.LENGTH_LONG).show();
+                tv.setText("Total distance is: "+ String.format("%.2f", totalDistance) + "Km");
                 Log.d(TAG, "onPolygonClick: totalDistance: "+ String.format("%.2f", totalDistance) + "Km");
             }
         });
@@ -447,7 +486,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     LatLng point3 = markerList.get(3).getPosition();
 
                     PolylineOptions polylineOptn = new PolylineOptions()
-                            .color(Color.BLACK)
+                            .color(Color.RED)
                             .width(10);
                     polyline1 = mMap.addPolyline(polylineOptn.add(point0,point1));
                     polyline2 = mMap.addPolyline(polylineOptn.add(point1,point2));
@@ -458,6 +497,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     polyline2.setClickable(true);
                     polyline3.setClickable(true);
                     polyline4.setClickable(true);
+
+                    polyline1.setTag(1);
+                    polyline2.setTag(2);
+                    polyline3.setTag(3);
+                    polyline4.setTag(4);
                 }
             }
         });
@@ -467,6 +511,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onPolylineClick(@NonNull @NotNull Polyline polyline) {
                 List<LatLng> lineCoordinates = polyline.getPoints();
 
+                Log.d(TAG, "onPolylineClick: lineCoordinates" + lineCoordinates);
+                Log.d(TAG, "onPolylineClick: polyline tag" + polyline.getTag());
                 Location location1 = new Location("");
                 location1.setLatitude(lineCoordinates.get(0).latitude);
                 location1.setLongitude(lineCoordinates.get(0).longitude);
@@ -475,7 +521,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 location2.setLatitude(lineCoordinates.get(1).latitude);
                 location2.setLongitude(lineCoordinates.get(1).longitude);
 
-                double distnace = location1.distanceTo(location2);
+                double distnaceInKm = location1.distanceTo(location2)/1000;
+                tv.setText("Distnace: "+ String.format("%.2f", distnaceInKm));
+                Log.d(TAG, "onPolylineClick: Distnace: "+ String.format("%.2f", distnaceInKm));
             }
         });
     }
