@@ -242,7 +242,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if(city.equalsIgnoreCase(newCity)){
                         cityExist = true;
                         //Toast.makeText(getBaseContext(),"City "+ newCity+" already exist!", Toast.LENGTH_SHORT).show();
-                        tv.setText("City "+ newCity+" already exist!");
+                        tv.setText("\n City "+ newCity+" already exist!");
                         Log.d(TAG, "City "+ newCity+" already exist!");
                         return;
                     }
@@ -453,7 +453,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 double totalDistance = AB + BC + CD +DE;
 
                 //Toast.makeText(getBaseContext(),"Total distance is: "+ String.format("%.2f", totalDistance) + "Km", Toast.LENGTH_LONG).show();
-                tv.setText("Total distance is: "+ String.format("%.2f", totalDistance) + "Km");
+                tv.setText("\n Total distance of enitre route is : "+ String.format("%.2f", totalDistance) + "Km");
                 Log.d(TAG, "onPolygonClick: totalDistance: "+ String.format("%.2f", totalDistance) + "Km");
             }
         });
@@ -524,13 +524,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 location2.setLongitude(lineCoordinates.get(1).longitude);
 
                 double distnaceInKm = location1.distanceTo(location2)/1000;
-                tv.setText("Distnace: "+ String.format("%.2f", distnaceInKm));
+                tv.setText("\n Distnace: "+ String.format("%.2f", distnaceInKm));
                 Log.d(TAG, "onPolylineClick: Distnace: "+ String.format("%.2f", distnaceInKm));
             }
         });
     }
 
-    private void convexHull(ArrayList<Marker> markerList, int size) {
+    /*private void convexHull(ArrayList<Marker> markerList, int size) {
 
         // Find the bottommost point
         double ymin = markerList.get(0).getPosition().latitude;
@@ -562,7 +562,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Marker temp = marker1;
         marker1 = marker2;
         marker2 = temp;
-    }
+    }*/
 
     public double calculateDistance(Marker marker1, Marker marker2){
         Location location1 = new Location("");
@@ -580,18 +580,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void adjustPolygonWithRespectTo(LatLng point) {
         double minDistance = 0;
 
-        if (markerList.get(0) != null && markerList.get(1) != null && markerList.get(2) != null) {
+        if (cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0) {
             distancesFromMidPointsOfPolygonEdges.clear();
 
-            for (int i = 0; i < markerList.size(); i++) {
-                if (markerList.get(i) != null && markerList.get(i+1) != null) {
+            int count = 0;
+            for(int i=0; i< markerList.size(); i++){
+                if(markerList.get(i) != null){
+                    count += 1;
+                }
+            }
+
+            Log.d(TAG, "adjustPolygonWithRespectTo: count: "+ count);
+            for (int i = 0; i < count; i++) {
+             //  if (markerList.get(i) != null && markerList.get(i+1) != null) {
                     // 1. Find the mid points of the edges of polygon
                     ArrayList<LatLng> list = new ArrayList<>();
 
-                    if (i == (markerList.size() - 1)) {
-                        list.add(markerList.get(markerList.size() - 1).getPosition());
+                    if (i == (count - 1)) {
+                        Log.d(TAG, "adjustPolygonWithRespectTo: i: " +i);
+                        Log.d(TAG, "adjustPolygonWithRespectTo: markerList" +markerList);
+                        list.add(markerList.get(count - 1).getPosition());
                         list.add(markerList.get(0).getPosition());
                     } else {
+                        Log.d(TAG, "adjustPolygonWithRespectTo else : i: " +i);
+                        Log.d(TAG, "adjustPolygonWithRespectTo else : markerList" +markerList);
                         list.add((markerList.get(i).getPosition()));
                         list.add((markerList.get(i + 1).getPosition()));
                     }
@@ -619,17 +631,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             minDistance = distance;
                         }
                     }
-                }
+               // }
             }
 
             // 3. The nearest coordinate = the edge with minimum distance from mid point to the coordinate to be drawn
             int position = minIndex(distancesFromMidPointsOfPolygonEdges);
 
             // 4. move the nearest coordinate at the end by shifting array right
-            int shiftByNumber = (markerList.size() - position - 1);
+            int shiftByNumber = (count - position - 1);
 
-            if (shiftByNumber != markerList.size()) {
-                markerList = rotate(markerList, shiftByNumber);
+            if (shiftByNumber != count) {
+                markerList = rotate(markerList, shiftByNumber, count);
             }
         }
 
@@ -681,14 +693,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return list.indexOf(Collections.min(list));
     }
 
-    public static <T> ArrayList<T> rotate(ArrayList<T>  shiftedArrayList, int shift) {
+    public static <T> ArrayList<T> rotate(ArrayList<T>  shiftedArrayList, int shift, int count) {
         if (shiftedArrayList.size() == 0)
             return shiftedArrayList;
 
         T element = null;
         for (int i = 0; i < shift; i++) {
             // remove last element, add it to front of the ArrayList
-            element = shiftedArrayList.remove(shiftedArrayList.size() - 1);
+            element = shiftedArrayList.remove(count - 1);
             shiftedArrayList.add(0, element);
         }
 
