@@ -69,6 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final int POLYGON_SIDES = 4;
     Marker base = null;
+    Marker m0;
     // MarkerOptions baseMarker = new MarkerOptions().position(new LatLng(43.6532, -79.3832)).title("Your base").icon(BitmapDescriptorFactory.fromResource(R.drawable.messiresize));
 
     ArrayList<Marker> markerList = new ArrayList<Marker>(){{
@@ -273,7 +274,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     polygon = null;
                 }
 
-                adjustPolygonWithRespectTo(latLng);
+                //adjustPolygonWithRespectTo(latLng);
+                convexHull(markerList, markerList.size());
 
                 PolygonOptions polygonOptions = new PolygonOptions()
                         .strokeColor(Color.RED)
@@ -526,6 +528,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(TAG, "onPolylineClick: Distnace: "+ String.format("%.2f", distnaceInKm));
             }
         });
+    }
+
+    private void convexHull(ArrayList<Marker> markerList, int size) {
+
+        // Find the bottommost point
+        double ymin = markerList.get(0).getPosition().latitude;
+        int min = 0;
+        for (int i = 1; i < markerList.size(); i++)
+        {
+            double y = markerList.get(i).getPosition().latitude;
+
+            // Pick the bottom-most or chose the left most point in case of tie
+            if ((y < ymin) || (ymin == y && markerList.get(i).getPosition().longitude < markerList.get(min).getPosition().longitude)) {
+                ymin = markerList.get(i).getPosition().latitude;
+                min = i;
+            }
+        }
+
+        // Place the bottom-most point at first position
+        swap(markerList.get(0), markerList.get(min));
+
+        // Sort n-1 points with respect to the first point.
+        // A point p1 comes before p2 in sorted output if p2
+        // has larger polar angle (in counterclockwise
+        // direction) than p1
+        m0 = markerList.get(0);
+
+        
+    }
+
+    private void swap(Marker marker1, Marker marker2) {
+        Marker temp = marker1;
+        marker1 = marker2;
+        marker2 = temp;
     }
 
     public double calculateDistance(Marker marker1, Marker marker2){
