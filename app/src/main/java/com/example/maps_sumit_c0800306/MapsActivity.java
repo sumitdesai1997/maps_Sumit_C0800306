@@ -31,6 +31,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.maps_sumit_c0800306.databinding.ActivityMapsBinding;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.google.*;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -134,11 +135,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                         double distanceInKM =  markerLocation.distanceTo(newMarkerLocation)/1000;
                         Log.d(TAG, "for index: "+ indexMarker + ", distanceInKM: " + distanceInKM);
-                        if(distanceInKM < 1.0){
+                        if(distanceInKM < 5.0){
                             marker.remove();
-//                            Log.d(TAG, "cityFillList: "+ cityFillList);
-//                            Log.d(TAG, "cityList: "+ cityList);
-//                            Log.d(TAG, "markerList: "+ markerList);
 
                             if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
                                 polygon.remove();
@@ -158,7 +156,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         indexMarker += 1;
                     }
                 }
-
 
                 if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
                     for(int i=0; i<markerList.size();i++){
@@ -220,22 +217,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(!cityExist && !newCity.equals("")){
                     if(cityList.get(0).equals("")){
                         cityList.set(0,newCity);
-                        cityFillList.set(0,1);
+
                     } else if(cityList.get(1).equals("")){
                         cityList.set(1,newCity);
-                        cityFillList.set(1,1);
+
                     }
                     else if(cityList.get(2).equals("")){
                         cityList.set(2,newCity);
-                        cityFillList.set(2,1);
+
                     }
                     else if(cityList.get(3).equals("")){
                         cityList.set(3,newCity);
-                        cityFillList.set(3,1);
+
                     }
                 }
 
-                Log.d(TAG, "cityFillList: "+ cityFillList);
                 Log.d(TAG, "cityList: "+ cityList);
 
                 if (polygon != null) {
@@ -256,6 +252,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0) {
                     polygon = mMap.addPolygon(polygonOptions);
+                    polygon.setClickable(true);
                 }
             }
         });
@@ -290,7 +287,140 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return false;
             }
         });
+        
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(@NonNull @NotNull Marker marker) {
+                Log.d(TAG, "onMarkerDragStart: marker: " + marker);
+                String title = marker.getTitle();
+                if(title.equals("A")){
+                    markerList.set(0, null);
+                    cityList.set(0, "");
+                    cityFillList.set(0, 0);
+                } else if(title.equals("B")){
+                    markerList.set(1, null);
+                    cityList.set(1, "");
+                    cityFillList.set(1, 0);
+                } else if(title.equals("C")){
+                    markerList.set(2, null);
+                    cityList.set(2, "");
+                    cityFillList.set(2, 0);
+                } else if(title.equals("D")){
+                    markerList.set(3, null);
+                    cityList.set(3, "");
+                    cityFillList.set(3, 0);
+                }
 
+                if(polygon != null){
+                    polygon.remove();
+                    polygon = null;
+                }
+
+                Log.d(TAG, " onMarkerDragStart cityFillList: "+ cityFillList);
+                Log.d(TAG, " onMarkerDragStart cityList: "+ cityList);
+                Log.d(TAG, " onMarkerDragStart markerList: "+ markerList);
+            }
+
+            @Override
+            public void onMarkerDrag(@NonNull @NotNull Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(@NonNull @NotNull Marker marker) {
+                Log.d(TAG, "onMarkerDragEnd: marker: "+ marker);
+
+                Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+                String draggedCity = "";
+                try{
+                    List<Address> addressList = geocoder.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1);
+                    if(addressList != null  && addressList.size() > 0){
+                        if (addressList.get(0).getLocality() != null)
+                            draggedCity = addressList.get(0).getLocality();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                if(markerList.get(0) == null){
+                    markerList.set(0,marker);
+                    cityList.set(0,draggedCity);
+                    cityFillList.set(0,1);
+                } else if(markerList.get(1) == null){
+                    markerList.set(1,marker);
+                    cityList.set(1,draggedCity);
+                    cityFillList.set(1,1);
+                } else if(markerList.get(2) == null){
+                    markerList.set(2,marker);
+                    cityList.set(2,draggedCity);
+                    cityFillList.set(2,1);
+                } else if(markerList.get(3) == null){
+                    markerList.set(3,marker);
+                    cityList.set(3,draggedCity);
+                    cityFillList.set(3,1);
+                }
+
+                Location userLocation = new Location("");
+                userLocation.setLatitude(userLatLng.latitude);
+                userLocation.setLongitude(userLatLng.longitude);
+
+                Location markerLocation = new Location("");
+                markerLocation.setLatitude(marker.getPosition().latitude);
+                markerLocation.setLongitude(marker.getPosition().longitude);
+
+                double distanceInKM =  userLocation.distanceTo(markerLocation)/1000;
+
+                marker.setSnippet(String.format("%.2f",distanceInKM)+ "Km");
+
+                PolygonOptions polygonOptions = new PolygonOptions()
+                        .strokeColor(Color.RED)
+                        .strokeWidth(5f)
+                        .fillColor(0x5900AA00);
+                Log.d(TAG, " onMarkerDragEnd markerList.size(): "+ markerList.size());
+                for (int i = 0; i < markerList.size(); i++) {
+                    if(markerList.get(i) != null) {
+                        polygonOptions.add(markerList.get(i).getPosition());
+                    }
+                }
+                if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0) {
+                    polygon = mMap.addPolygon(polygonOptions);
+                    polygon.setClickable(true);
+                }
+
+                Log.d(TAG, " onMarkerDragEnd cityFillList: "+ cityFillList);
+                Log.d(TAG, " onMarkerDragEnd cityList: "+ cityList);
+                Log.d(TAG, " onMarkerDragEnd markerList: "+ markerList);
+            }
+        });
+        
+        mMap.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener() {
+            @Override
+            public void onPolygonClick(@NonNull @NotNull Polygon polygon) {
+
+                double AB = calculateDistance(markerList.get(0), markerList.get(1));
+                double BC = calculateDistance(markerList.get(1), markerList.get(2));
+                double CD = calculateDistance(markerList.get(2), markerList.get(3));
+                double DE = calculateDistance(markerList.get(3), markerList.get(0));
+
+                double totalDistance = AB + BC + CD +DE;
+
+                Toast.makeText(getBaseContext(),"Total distance is: "+ String.format("%.2f", totalDistance) + "Km", Toast.LENGTH_LONG).show();
+
+                Log.d(TAG, "onPolygonClick: totalDistance: "+ String.format("%.2f", totalDistance) + "Km");
+            }
+        });
+    }
+
+    public double calculateDistance(Marker marker1, Marker marker2){
+        Location location1 = new Location("");
+        location1.setLatitude(marker1.getPosition().latitude);
+        location1.setLongitude(marker1.getPosition().longitude);
+
+        Location location2 = new Location("");
+        location2.setLatitude(marker2.getPosition().latitude);
+        location2.setLongitude(marker2.getPosition().longitude);
+
+        return location1.distanceTo(location2)/1000;
     }
 
     ArrayList<Double> distancesFromMidPointsOfPolygonEdges = new ArrayList<>();
@@ -361,20 +491,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         double distanceInKM =  userLocation.distanceTo(markerLocation)/1000;
 
-        MarkerOptions newMarker = new MarkerOptions().position(point).snippet(String.format("%.2f",distanceInKM)+ "Km");
+        MarkerOptions newMarker = new MarkerOptions().position(point).draggable(true).snippet(String.format("%.2f",distanceInKM)+ "Km");
 
         if(cityFillList.get(0) == 0){
             newMarker.title("A");
-            //cityFillList.set(0,1);
+            cityFillList.set(0,1);
         } else if(cityFillList.get(1) == 0){
             newMarker.title("B");
-            //cityFillList.set(1,1);
+            cityFillList.set(1,1);
         } else if(cityFillList.get(2) == 0){
             newMarker.title("C");
-            //cityFillList.set(2,1);
+            cityFillList.set(2,1);
         } else if(cityFillList.get(3) == 0){
             newMarker.title("D");
-            //cityFillList.set(3,1);
+            cityFillList.set(3,1);
         }
 
         if(markerList.get(0) == null){
@@ -390,7 +520,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             markerList.set(3,mMap.addMarker(newMarker));
             cityFillList.set(3,1);
         }
-        Log.d(TAG, "add markerList: "+ markerList);
+        Log.d(TAG, "cityFillList: "+ cityFillList);
+        Log.d(TAG, "markerList: "+ markerList);
     }
 
     public static int minIndex(ArrayList<Double> list) {
