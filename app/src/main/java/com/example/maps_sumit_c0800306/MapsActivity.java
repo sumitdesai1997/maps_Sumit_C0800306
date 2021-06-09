@@ -274,8 +274,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     polygon = null;
                 }
 
-                //adjustPolygonWithRespectTo(latLng);
-                convexHull(markerList, markerList.size());
+                adjustPolygonWithRespectTo(latLng);
+                //convexHull(markerList, markerList.size());
 
                 PolygonOptions polygonOptions = new PolygonOptions()
                         .strokeColor(Color.RED)
@@ -331,19 +331,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(TAG, "onMarkerDragStart: marker: " + marker);
                 String title = marker.getTitle();
                 if(title.equals("A")){
-                    markerList.set(0, null);
+                    //markerList.set(0, null);
                     cityList.set(0, "");
                     cityFillList.set(0, 0);
                 } else if(title.equals("B")){
-                    markerList.set(1, null);
+                    //markerList.set(1, null);
                     cityList.set(1, "");
                     cityFillList.set(1, 0);
                 } else if(title.equals("C")){
-                    markerList.set(2, null);
+                    //markerList.set(2, null);
                     cityList.set(2, "");
                     cityFillList.set(2, 0);
                 } else if(title.equals("D")){
-                    markerList.set(3, null);
+                    //markerList.set(3, null);
                     cityList.set(3, "");
                     cityFillList.set(3, 0);
                 }
@@ -390,20 +390,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     e.printStackTrace();
                 }
 
-                if(markerList.get(0) == null){
-                    markerList.set(0,marker);
+                if(cityFillList.get(0) == 0){
+                    //markerList.set(0,marker);
                     cityList.set(0,draggedCity);
                     cityFillList.set(0,1);
-                } else if(markerList.get(1) == null){
-                    markerList.set(1,marker);
+                } else if(cityFillList.get(1) == 0){
+                    //markerList.set(1,marker);
                     cityList.set(1,draggedCity);
                     cityFillList.set(1,1);
-                } else if(markerList.get(2) == null){
-                    markerList.set(2,marker);
+                } else if(cityFillList.get(2) == 0){
+                    //markerList.set(2,marker);
                     cityList.set(2,draggedCity);
                     cityFillList.set(2,1);
-                } else if(markerList.get(3) == null){
-                    markerList.set(3,marker);
+                } else if(cityFillList.get(3) == 0){
+                    //markerList.set(3,marker);
                     cityList.set(3,draggedCity);
                     cityFillList.set(3,1);
                 }
