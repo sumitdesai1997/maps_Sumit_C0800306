@@ -139,6 +139,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapLongClick(LatLng latLng) {
                 int indexMarker = 0;
+                Boolean nearBy = false;
                 for(Marker marker: markerList){
                     if(marker != null){
                         Location markerLocation = new Location("");
@@ -153,19 +154,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Log.d(TAG, "for index: "+ indexMarker + ", distanceInKM: " + distanceInKM);
                         if(distanceInKM < 5.0){
                             marker.remove();
+                            nearBy = true;
 
                             if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
                                 polygon.remove();
                                 polygon = null;
 
-                                polyline1.remove();
-                                polyline2.remove();
-                                polyline3.remove();
-                                polyline4.remove();
-                                polyline1 = null;
-                                polyline2 = null;
-                                polyline3 = null;
-                                polyline4 = null;
+                                if(polyline1 != null) {
+                                    polyline1.remove();
+                                    polyline2.remove();
+                                    polyline3.remove();
+                                    polyline4.remove();
+                                    polyline1 = null;
+                                    polyline2 = null;
+                                    polyline3 = null;
+                                    polyline4 = null;
+                                }
                             }
 
                             cityFillList.set(indexMarker, 0);
@@ -175,11 +179,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             Log.d(TAG, " after remove cityFillList: "+ cityFillList);
                             Log.d(TAG, " after remove cityList: "+ cityList);
                             Log.d(TAG, " after remove markerList: "+ markerList);
-
-                            return;
                         }
                         indexMarker += 1;
                     }
+                }
+
+                if(nearBy){
+                    return;
                 }
 
                 if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
@@ -198,14 +204,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     polygon.remove();
                     polygon = null;
 
-                    polyline1.remove();
-                    polyline2.remove();
-                    polyline3.remove();
-                    polyline4.remove();
-                    polyline1 = null;
-                    polyline2 = null;
-                    polyline3 = null;
-                    polyline4 = null;
+                    if(polyline1 != null) {
+                        polyline1.remove();
+                        polyline2.remove();
+                        polyline3.remove();
+                        polyline4.remove();
+                        polyline1 = null;
+                        polyline2 = null;
+                        polyline3 = null;
+                        polyline4 = null;
+                    }
 
                     cityList.clear();
                     cityList.add("");
@@ -289,9 +297,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0) {
                     polygon = mMap.addPolygon(polygonOptions);
                     polygon.setClickable(true);
+
+                    drawPolyline();
                 }
             }
         });
+
+
 
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -433,6 +445,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0) {
                     polygon = mMap.addPolygon(polygonOptions);
                     polygon.setClickable(true);
+
+                    drawPolyline();
                 }
 
                 Log.d(TAG, " onMarkerDragEnd cityFillList: "+ cityFillList);
@@ -458,11 +472,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
         
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+        /*mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(@NonNull @NotNull LatLng latLng) {
                 if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
-                    /*Log.d(TAG, "onMapClick: ");
+                    *//*Log.d(TAG, "onMapClick: ");
                     for(int i=0; i<markerList.size(); i++){
                         LatLng point1;
                         LatLng point2;
@@ -480,7 +494,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 .add(point1, point2);
                         mMap.addPolyline(polyline);
                         Log.d(TAG, "onMapClick: polyline added");
-                    }*/
+                    }*//*
 
                     LatLng point0 = markerList.get(0).getPosition();
                     LatLng point1 = markerList.get(1).getPosition();
@@ -506,7 +520,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     polyline4.setTag(4);
                 }
             }
-        });
+        });*/
 
         mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
             @Override
@@ -528,6 +542,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(TAG, "onPolylineClick: Distnace: "+ String.format("%.2f", distnaceInKm));
             }
         });
+    }
+
+    private void drawPolyline() {
+        LatLng point0 = markerList.get(0).getPosition();
+        LatLng point1 = markerList.get(1).getPosition();
+        LatLng point2 = markerList.get(2).getPosition();
+        LatLng point3 = markerList.get(3).getPosition();
+
+        PolylineOptions polylineOptn = new PolylineOptions()
+                .color(Color.RED)
+                .width(10);
+        polyline1 = mMap.addPolyline(polylineOptn.add(point0,point1));
+        polyline2 = mMap.addPolyline(polylineOptn.add(point1,point2));
+        polyline3 = mMap.addPolyline(polylineOptn.add(point2,point3));
+        polyline4 = mMap.addPolyline(polylineOptn.add(point3,point0));
+
+        polyline1.setClickable(true);
+        polyline2.setClickable(true);
+        polyline3.setClickable(true);
+        polyline4.setClickable(true);
+
+        polyline1.setTag(1);
+        polyline2.setTag(2);
+        polyline3.setTag(3);
+        polyline4.setTag(4);
     }
 
     /*private void convexHull(ArrayList<Marker> markerList, int size) {
@@ -642,6 +681,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             if (shiftByNumber != count) {
                 markerList = rotate(markerList, shiftByNumber, count);
+                cityList = rotate(cityList, shiftByNumber, count);
+                cityFillList = rotate(cityFillList, shiftByNumber, count);
             }
         }
 
@@ -656,7 +697,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         double distanceInKM =  userLocation.distanceTo(markerLocation)/1000;
 
-        MarkerOptions newMarker = new MarkerOptions().position(point).draggable(true).snippet(String.format("%.2f",distanceInKM)+ "Km");
+        MarkerOptions newMarker = new MarkerOptions().position(point).
+                draggable(true).
+                snippet(String.format("%.2f",distanceInKM)+ "Km")
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.map));
 
         if(cityFillList.get(0) == 0){
             newMarker.title("A");
@@ -685,23 +729,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             markerList.set(3,mMap.addMarker(newMarker));
             cityFillList.set(3,1);
         }
-        Log.d(TAG, "cityFillList: "+ cityFillList);
-        Log.d(TAG, "markerList: "+ markerList);
+        Log.d(TAG, "final cityFillList: "+ cityFillList);
+        Log.d(TAG, "final cityList: "+ cityList);
+        Log.d(TAG, "final markerList: "+ markerList);
     }
 
     public static int minIndex(ArrayList<Double> list) {
         return list.indexOf(Collections.min(list));
     }
 
-    public static <T> ArrayList<T> rotate(ArrayList<T>  shiftedArrayList, int shift, int count) {
+    public static <T> ArrayList<T> rotate(ArrayList<T> shiftedArrayList, int shift, int count) {
         if (shiftedArrayList.size() == 0)
             return shiftedArrayList;
 
-        T element = null;
+        T element1 = null;
+        T element2 = null;
+        T element3 = null;
         for (int i = 0; i < shift; i++) {
             // remove last element, add it to front of the ArrayList
-            element = shiftedArrayList.remove(count - 1);
-            shiftedArrayList.add(0, element);
+            element1 = shiftedArrayList.remove(count - 1);
+            shiftedArrayList.add(0, element1);
+
+            /*element2 = cityFillList.remove(count - 1);
+            cityFillList.add(0, element2);
+
+            element3 = cityList.remove(count - 1);
+            cityList.add(0, element3);*/
         }
 
         return shiftedArrayList;
