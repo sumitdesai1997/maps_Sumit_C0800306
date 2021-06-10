@@ -10,6 +10,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -22,9 +24,11 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.util.MapUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -60,6 +64,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng userLatLng;
 
     Marker currentMarker;
+    Marker distanceMarker1;
+    Marker distanceMarker2;
+    Marker distanceMarker3;
+    Marker distanceMarker4;
+    MapUtils mapUtils;
 
     Polygon polygon;
     Polyline polyline1;
@@ -170,6 +179,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     polyline3 = null;
                                     polyline4 = null;
                                 }
+
+                                if(distanceMarker1 != null){
+                                    distanceMarker1.remove();
+                                    distanceMarker2.remove();
+                                    distanceMarker3.remove();
+                                    distanceMarker4.remove();
+                                    distanceMarker1 = null;
+                                    distanceMarker2 = null;
+                                    distanceMarker3 = null;
+                                    distanceMarker4 = null;
+                                }
                             }
 
                             cityFillList.set(indexMarker, 0);
@@ -213,6 +233,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         polyline2 = null;
                         polyline3 = null;
                         polyline4 = null;
+                    }
+
+                    if(distanceMarker1 != null){
+                        distanceMarker1.remove();
+                        distanceMarker2.remove();
+                        distanceMarker3.remove();
+                        distanceMarker4.remove();
+                        distanceMarker1 = null;
+                        distanceMarker2 = null;
+                        distanceMarker3 = null;
+                        distanceMarker4 = null;
                     }
 
                     cityList.clear();
@@ -343,19 +374,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(TAG, "onMarkerDragStart: marker: " + marker);
                 String title = marker.getTitle();
                 if(title.equals("A")){
-                    //markerList.set(0, null);
                     cityList.set(0, "");
                     cityFillList.set(0, 0);
                 } else if(title.equals("B")){
-                    //markerList.set(1, null);
                     cityList.set(1, "");
                     cityFillList.set(1, 0);
                 } else if(title.equals("C")){
-                    //markerList.set(2, null);
                     cityList.set(2, "");
                     cityFillList.set(2, 0);
                 } else if(title.equals("D")){
-                    //markerList.set(3, null);
                     cityList.set(3, "");
                     cityFillList.set(3, 0);
                 }
@@ -374,6 +401,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     polyline2 = null;
                     polyline3 = null;
                     polyline4 = null;
+                }
+
+                if(distanceMarker1 != null){
+                    distanceMarker1.remove();
+                    distanceMarker2.remove();
+                    distanceMarker3.remove();
+                    distanceMarker4.remove();
+                    distanceMarker1 = null;
+                    distanceMarker2 = null;
+                    distanceMarker3 = null;
+                    distanceMarker4 = null;
                 }
 
                 Log.d(TAG, " onMarkerDragStart cityFillList: "+ cityFillList);
@@ -471,56 +509,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.d(TAG, "onPolygonClick: totalDistance: "+ String.format("%.2f", totalDistance) + "Km");
             }
         });
-        
-        /*mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull @NotNull LatLng latLng) {
-                if(cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0 && cityFillList.get(3) != 0){
-                    *//*Log.d(TAG, "onMapClick: ");
-                    for(int i=0; i<markerList.size(); i++){
-                        LatLng point1;
-                        LatLng point2;
-                        if (i == (markerList.size() - 1)) {
-                            point1 = markerList.get(markerList.size() - 1).getPosition();
-                            point2 = markerList.get(0).getPosition();
-                        } else {
-                             point1 = markerList.get(i).getPosition();
-                             point2 = markerList.get(i + 1).getPosition();
-                        }
-
-                        PolylineOptions polyline = new PolylineOptions()
-                                .color(Color.BLACK)
-                                .width(10)
-                                .add(point1, point2);
-                        mMap.addPolyline(polyline);
-                        Log.d(TAG, "onMapClick: polyline added");
-                    }*//*
-
-                    LatLng point0 = markerList.get(0).getPosition();
-                    LatLng point1 = markerList.get(1).getPosition();
-                    LatLng point2 = markerList.get(2).getPosition();
-                    LatLng point3 = markerList.get(3).getPosition();
-
-                    PolylineOptions polylineOptn = new PolylineOptions()
-                            .color(Color.RED)
-                            .width(10);
-                    polyline1 = mMap.addPolyline(polylineOptn.add(point0,point1));
-                    polyline2 = mMap.addPolyline(polylineOptn.add(point1,point2));
-                    polyline3 = mMap.addPolyline(polylineOptn.add(point2,point3));
-                    polyline4 = mMap.addPolyline(polylineOptn.add(point3,point0));
-
-                    polyline1.setClickable(true);
-                    polyline2.setClickable(true);
-                    polyline3.setClickable(true);
-                    polyline4.setClickable(true);
-
-                    polyline1.setTag(1);
-                    polyline2.setTag(2);
-                    polyline3.setTag(3);
-                    polyline4.setTag(4);
-                }
-            }
-        });*/
 
         mMap.setOnPolylineClickListener(new GoogleMap.OnPolylineClickListener() {
             @Override
@@ -529,17 +517,64 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 Log.d(TAG, "onPolylineClick: lineCoordinates" + lineCoordinates);
                 Log.d(TAG, "onPolylineClick: polyline tag" + polyline.getTag());
-                Location location1 = new Location("");
-                location1.setLatitude(lineCoordinates.get(0).latitude);
-                location1.setLongitude(lineCoordinates.get(0).longitude);
 
-                Location location2 = new Location("");
-                location2.setLatitude(lineCoordinates.get(1).latitude);
-                location2.setLongitude(lineCoordinates.get(1).longitude);
+                Location locationA = new Location("");
+                locationA.setLatitude(lineCoordinates.get(0).latitude);
+                locationA.setLongitude(lineCoordinates.get(0).longitude);
 
-                double distnaceInKm = location1.distanceTo(location2)/1000;
-                tv.setText("\n Distnace: "+ String.format("%.2f", distnaceInKm));
-                Log.d(TAG, "onPolylineClick: Distnace: "+ String.format("%.2f", distnaceInKm));
+                Location locationB = new Location("");
+                locationB.setLatitude(lineCoordinates.get(1).latitude);
+                locationB.setLongitude(lineCoordinates.get(1).longitude);
+
+                Location locationC = new Location("");
+                locationC.setLatitude(lineCoordinates.get(3).latitude);
+                locationC.setLongitude(lineCoordinates.get(3).longitude);
+
+                Location locationD = new Location("");
+                locationD.setLatitude(lineCoordinates.get(5).latitude);
+                locationD.setLongitude(lineCoordinates.get(5).longitude);
+
+                String distnaceAB = String.format("%.2f",locationA.distanceTo(locationB)/1000);
+                String distnaceBC = String.format("%.2f",locationB.distanceTo(locationC)/1000);
+                String distnaceCD = String.format("%.2f",locationC.distanceTo(locationD)/1000);
+                String distnaceDA = String.format("%.2f",locationD.distanceTo(locationA)/1000);
+
+                ArrayList<LatLng> list1 = new ArrayList<>();
+                list1.add(lineCoordinates.get(0));
+                list1.add(lineCoordinates.get(1));
+
+                ArrayList<LatLng> list2 = new ArrayList<>();
+                list2.add(lineCoordinates.get(1));
+                list2.add(lineCoordinates.get(3));
+
+                ArrayList<LatLng> list3 = new ArrayList<>();
+                list3.add(lineCoordinates.get(3));
+                list3.add(lineCoordinates.get(5));
+
+                ArrayList<LatLng> list4 = new ArrayList<>();
+                list4.add(lineCoordinates.get(5));
+                list4.add(lineCoordinates.get(0));
+
+                LatLng midPoint1 = computeCentroid(list1);
+                LatLng midPoint2 = computeCentroid(list2);
+                LatLng midPoint3 = computeCentroid(list3);
+                LatLng midPoint4 = computeCentroid(list4);
+
+                MarkerOptions distanceMarkerOptn1 = new MarkerOptions().position(midPoint1)
+                        .icon(BitmapDescriptorFactory.fromBitmap(createStoreMarker(distnaceAB)));
+                MarkerOptions distanceMarkerOptn2 = new MarkerOptions().position(midPoint2)
+                        .icon(BitmapDescriptorFactory.fromBitmap(createStoreMarker(distnaceBC)));
+                MarkerOptions distanceMarkerOptn3 = new MarkerOptions().position(midPoint3)
+                        .icon(BitmapDescriptorFactory.fromBitmap(createStoreMarker(distnaceCD)));
+                MarkerOptions distanceMarkerOptn4 = new MarkerOptions().position(midPoint4)
+                        .icon(BitmapDescriptorFactory.fromBitmap(createStoreMarker(distnaceDA)));
+                distanceMarker1 = mMap.addMarker(distanceMarkerOptn1);
+                distanceMarker2 = mMap.addMarker(distanceMarkerOptn2);
+                distanceMarker3 = mMap.addMarker(distanceMarkerOptn3);
+                distanceMarker4 = mMap.addMarker(distanceMarkerOptn4);
+
+                tv.setText("AB Distnace: "+distnaceAB + ", BC Distnace: "+ distnaceBC + ", CD Distnace: "+  distnaceCD + ",AD Distnace: "+ distnaceDA);
+                //Log.d(TAG, "onPolylineClick: Distnace: "+ String.format("%.2f", distnaceInKm));
             }
         });
     }
@@ -732,6 +767,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "final cityFillList: "+ cityFillList);
         Log.d(TAG, "final cityList: "+ cityList);
         Log.d(TAG, "final markerList: "+ markerList);
+    }
+
+    private Bitmap createStoreMarker(String distance) {
+        View markerLayout = getLayoutInflater().inflate(R.layout.store_marker_layout, null);
+
+        //ImageView markerImage = (ImageView) markerLayout.findViewById(R.id.marker_image);
+        TextView markerRating = (TextView) markerLayout.findViewById(R.id.marker_text);
+        //markerImage.setImageResource(R.drawable.map);
+        markerRating.setText("Distance: " + distance + " Km");
+        //markerRating.setBackgroundResource(R.drawable.map);
+
+        markerLayout.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+        markerLayout.layout(0, 0, markerLayout.getMeasuredWidth(), markerLayout.getMeasuredHeight());
+
+        final Bitmap bitmap = Bitmap.createBitmap(markerLayout.getMeasuredWidth(), markerLayout.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        markerLayout.draw(canvas);
+        return bitmap;
     }
 
     public static int minIndex(ArrayList<Double> list) {
