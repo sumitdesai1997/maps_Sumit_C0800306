@@ -563,7 +563,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 distanceMarker3 = mMap.addMarker(distanceMarkerOptn3);
                 distanceMarker4 = mMap.addMarker(distanceMarkerOptn4);
 
-                tv.setText("AB Distnace: "+distnaceAB + ", BC Distnace: "+ distnaceBC + ", CD Distnace: "+  distnaceCD + ",AD Distnace: "+ distnaceDA);
                 //Log.d(TAG, "onPolylineClick: Distnace: "+ String.format("%.2f", distnaceInKm));
             }
         });
