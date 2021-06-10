@@ -64,11 +64,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     LatLng userLatLng;
 
     Marker currentMarker;
-    Marker distanceMarker1;
-    Marker distanceMarker2;
-    Marker distanceMarker3;
-    Marker distanceMarker4;
-    MapUtils mapUtils;
+    Marker distanceMarker1 = null;
+    Marker distanceMarker2 = null;
+    Marker distanceMarker3 = null;
+    Marker distanceMarker4 = null;
 
     Polygon polygon;
     Polyline polyline1;
@@ -76,10 +75,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Polyline polyline3;
     Polyline polyline4;
 
-    private static final int POLYGON_SIDES = 4;
     Marker base = null;
-    Marker m0;
-    // MarkerOptions baseMarker = new MarkerOptions().position(new LatLng(43.6532, -79.3832)).title("Your base").icon(BitmapDescriptorFactory.fromResource(R.drawable.messiresize));
 
     ArrayList<Marker> markerList = new ArrayList<Marker>(){{
         add(base);
@@ -334,8 +330,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-
-
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull @NotNull Marker marker) {
@@ -441,19 +435,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
                 if(cityFillList.get(0) == 0){
-                    //markerList.set(0,marker);
                     cityList.set(0,draggedCity);
                     cityFillList.set(0,1);
                 } else if(cityFillList.get(1) == 0){
-                    //markerList.set(1,marker);
                     cityList.set(1,draggedCity);
                     cityFillList.set(1,1);
                 } else if(cityFillList.get(2) == 0){
-                    //markerList.set(2,marker);
                     cityList.set(2,draggedCity);
                     cityFillList.set(2,1);
                 } else if(cityFillList.get(3) == 0){
-                    //markerList.set(3,marker);
                     cityList.set(3,draggedCity);
                     cityFillList.set(3,1);
                 }
