@@ -780,7 +780,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         MarkerOptions newMarker = new MarkerOptions().position(point).
                 draggable(true).
                 snippet(String.format("%.2f",distanceInKM)+ "Km")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.map));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.destination));
 
         if(cityFillList.get(0) == 0){
             newMarker.title("A");
@@ -890,7 +890,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
         MarkerOptions marker = new MarkerOptions().position(userLatLng)
                 .title("You are here")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.messiresize))
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.childiron))
                 .snippet("Your location");
         currentMarker = mMap.addMarker(marker);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng,10));
