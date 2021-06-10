@@ -644,6 +644,61 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void adjustPolygonWithRespectTo(LatLng point) {
         double minDistance = 0;
 
+        Log.d(TAG, "before: markerList: "+ markerList);
+        Log.d(TAG, "before: cityList: "+ cityList);
+        Log.d(TAG, "before: cityFillList: "+ cityFillList);
+
+        ArrayList<Marker> tempMarkerList = new ArrayList<>();
+        ArrayList<String> tempCityList = new ArrayList<>();
+        ArrayList<Integer> tempCityFillList = new ArrayList<>();
+
+        for(int i=0; i< markerList.size(); i++){
+            if(markerList.get(i) != null){
+                tempMarkerList.add(markerList.get(i));
+            }
+        }
+
+        for(int i=0; i< cityList.size(); i++){
+            if(cityList.get(i) != ""){
+                tempCityList.add(cityList.get(i));
+            }
+        }
+
+        for(int i=0; i< cityFillList.size(); i++){
+            if(cityFillList.get(i) != 0){
+                tempCityFillList.add(cityFillList.get(i));
+            }
+        }
+
+        for(int i=0; i< markerList.size(); i++){
+            int size = tempMarkerList.size();
+            if(i >= size){
+                tempMarkerList.add(base);
+            }
+        }
+
+        for(int i=0; i< cityList.size(); i++){
+            int size = tempCityList.size();
+            if(i >= size){
+                tempCityList.add("");
+            }
+        }
+
+        for(int i=0; i< cityFillList.size(); i++){
+            int size = tempCityFillList.size();
+            if(i >= size){
+                tempCityFillList.add(0);
+            }
+        }
+
+        markerList = tempMarkerList;
+        cityList = tempCityList;
+        cityFillList = tempCityFillList;
+
+        Log.d(TAG, "after: markerList: "+ markerList);
+        Log.d(TAG, "after: cityList: "+ cityList);
+        Log.d(TAG, "after: cityFillList: "+ cityFillList);
+
         if (cityFillList.get(0) != 0 && cityFillList.get(1) != 0 && cityFillList.get(2) != 0) {
             distancesFromMidPointsOfPolygonEdges.clear();
 
